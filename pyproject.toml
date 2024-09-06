@@ -1,0 +1,60 @@
+[build-system]
+requires = [
+    "hatchling >= 1.13.0",
+    "wheel",
+    "Cython~=3.0.5"
+]
+build-backend = "hatchling.build"
+
+[project]
+name = 'document_search'
+dynamic = [
+  'version'
+]
+readme = 'README.md'
+requires-python = '>=3.9'
+dependencies = [
+  "pillow",
+  "numpy<2.0"
+]
+
+[project.optional-dependencies]
+dev = ['pytest', 'mypy', 'ruff', 'isort']
+
+[tool.hatch.version]
+path = "document_search/__init__.py"
+
+[tool.hatch.metadata]
+allow-direct-references = true
+
+[tool.mypy]
+strict = true
+implicit_reexport = true
+disable_error_code = ["import-untyped"]
+
+[tool.isort]
+profile = "black"
+
+[tool.ruff.lint]
+select = [
+    "E",  # pycodestyle errors
+    "W",  # pycodestyle warnings
+    "F",  # pyflakes
+    "I",  # isort
+    "C",  # flake8-comprehensions
+    "B",  # flake8-bugbear
+    "UP", # pyupgrade
+]
+ignore = [
+    "B008", # do not perform function calls in argument defaults
+    "C901", # too complex
+    "W191", # indentation contains tabs
+    "E741", # Ambiguous variable name
+]
+ignore-init-module-imports = true
+
+[tool.ruff.lint.per-file-ignores]
+"__init__.py" = ["F401"]
+
+[tool.ruff.lint.pyupgrade]
+keep-runtime-typing = true
