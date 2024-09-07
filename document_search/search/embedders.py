@@ -6,7 +6,7 @@ from langchain_community.embeddings import HuggingFaceEmbeddings
 
 class TextEntityEmbedderE5(TextEntityEmbedder):
 
-    def __init__(self):
+    def __init__(self) -> None:
         self.embedder = HuggingFaceEmbeddings(model_name='intfloat/multilingual-e5-base')
 
     def vectorize(self, item: TextDocEntity) -> VectorizedDocEntity:
