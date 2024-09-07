@@ -17,14 +17,3 @@ class TextEntityEmbedderE5(TextEntityEmbedder):
             position=item.position,
             vector=vector
         )
-
-
-if __name__ == "__main__":
-    from document_search.entities import EntityPosition, TextDocEntity
-
-    position = EntityPosition(parent_document_id="doc1", page=1, position_x=0.5, position_y=0.5)
-    text_entity = TextDocEntity(id_=1, position=position, text="Раз два три четыре")
-
-    embedder = TextEntityEmbedderE5()
-    vectorized_entity = embedder.vectorize(text_entity)
-    print(vectorized_entity)
