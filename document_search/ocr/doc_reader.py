@@ -32,7 +32,7 @@ class DocumentReader:
 
                 def get_image(page_number: int) -> Image.Image:
                     page = pdf_document.load_page(page_number)
-                    pix = page.get_pixmap()  # type: ignore
+                    pix = page.get_pixmap()
                     return Image.frombytes("RGB", (pix.width, pix.height), pix.samples)
 
                 return list(map(get_image, range(len(pdf_document))))
@@ -71,7 +71,7 @@ class DocumentReader:
 
     def _extract_tables(
         self,
-        table_parser: pdfplumber.PDF,  # type: ignore
+        table_parser: pdfplumber.PDF,
         page_num: int,
     ) -> list[DocEntity]:
         try:
@@ -89,7 +89,9 @@ class DocumentReader:
             raise ExtractTablesError from exc
 
     def _extract_text_block(
-        self, element: LTTextContainer, page_num: int
+        self,
+        element: LTTextContainer,  # type: ignore
+        page_num: int,
     ) -> TextDocEntity:
         try:
             text = element.get_text().strip().replace("\n", "")
