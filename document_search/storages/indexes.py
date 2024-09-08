@@ -11,7 +11,7 @@ from document_search.storages.interfaces import DocumentStorage
 class DocumentStorageE5(DocumentStorage):
     def __init__(self, embedder: TextEntityEmbedderE5) -> None:
         self.embedder = embedder
-        self.index = faiss.IndexFlatL2(self.embedder.embed_shape)
+        self.index = faiss.IndexFlatIP(self.embedder.embed_shape)
         self.document_counter = 0
 
         self.vector_store = FAISS(

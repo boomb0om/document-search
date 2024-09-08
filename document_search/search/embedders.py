@@ -1,3 +1,4 @@
+import faiss
 import numpy as np
 from langchain_community.embeddings import HuggingFaceEmbeddings  # type: ignore
 
@@ -9,7 +10,8 @@ class TextEntityEmbedderE5(TextEntityEmbedder):
 
     def __init__(self) -> None:
         self.embedder = HuggingFaceEmbeddings(
-            model_name='intfloat/multilingual-e5-base'
+            model_name='intfloat/multilingual-e5-base',
+            encode_kwargs={'normalize_embeddings': True}
         )
         self.embed_shape = 768
 
