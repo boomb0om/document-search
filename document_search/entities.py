@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from typing import Literal
+from typing import Any, Literal
 
 import numpy as np
 from PIL import Image
@@ -7,44 +7,54 @@ from PIL import Image
 
 @dataclass
 class EntityPosition:
-    parent_document_id: str
-    page: int
-    position_x: float
-    position_y: float
+    page_number: int
+
+    def __eq__(self, other: Any) -> bool:
+        return (
+            isinstance(other, EntityPosition) and self.page_number == other.page_number
+        )
+
+    def __hash__(self) -> int:
+        return hash(self.page_number)
+
+    def __str__(self) -> str:
+        return f"Page Number: {self.page_number}"
 
 
 @dataclass
 class DocEntity:
-    id_: int
     position: EntityPosition
 
 
 @dataclass
 class ProcessedDocument:
     name: str
-    id_: str
     num_pages: int
-    original_format: Literal['pdf', 'docx']
+    original_format: Literal["", "pdf", "docx"]
     entities: list[DocEntity]
+    page_entities: dict[int, list[DocEntity]]
+
+    @classmethod
+    def empty(cls) -> "ProcessedDocument":
+        return cls(
+            name="", num_pages=0, original_format="", entities=[], page_entities={}
+        )
 
 
 @dataclass
 class TextDocEntity(DocEntity):
-    id_: int
     position: EntityPosition
     text: str
 
 
 @dataclass
 class TableDocEntity(DocEntity):
-    id_: int
     position: EntityPosition
-    table: str
+    table: list[list[str]]
 
 
 @dataclass
 class ImageDocEntity(DocEntity):
-    id_: int
     position: EntityPosition
     image: Image.Image
 

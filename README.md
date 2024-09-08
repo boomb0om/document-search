@@ -11,7 +11,7 @@ Service for document search and RAG for Nornickel case on AI Product Hack 2024
 
 ## Установка
 
-Необходим python версиии >=3.9
+Необходим python версиии >=3.10
 
 ```bash
 git clone https://github.com/boomb0om/document-search
