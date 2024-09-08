@@ -1,6 +1,6 @@
-from pathlib import Path
-from typing import Optional
 import io
+from pathlib import Path
+
 import fitz
 import pdfplumber
 import PyPDF2
@@ -113,25 +113,25 @@ class PDFDocumentReader(IDocumentReader):
             )
         except Exception as exc:
             raise ExtractImageError from exc
-        
+
     def read(
-        self, 
-        file: io.IOBase | str, 
-        filename: Optional[str] = None
+        self,
+        file: io.IOBase | str,
+        filename: str | None = None
     ) -> tuple[ProcessedDocument, list[Exception]]:
         if isinstance(file, str):
             pdf_file = open(file, "rb")
             filename = filename if filename else Path(file).stem
         else:
             assert filename is not None, "param filename should be specified if file is a file object"
-            pdf_file = file
+            pdf_file = file  # type: ignore
         return self.process_pdf_bytes(pdf_file, filename)
 
     def process_pdf_bytes(self, pdf_file: io.IOBase, document_name: str) -> tuple[ProcessedDocument, list[Exception]]:
         errors = []
         doc_entities: list[DocEntity] = []
-        pdf_object = PyPDF2.PdfReader(pdf_file)
-        table_parser = pdfplumber.open(pdf_file)
+        pdf_object = PyPDF2.PdfReader(pdf_file)  # type: ignore
+        table_parser = pdfplumber.open(pdf_file)  # type: ignore
 
         for page_num, page in enumerate(extract_pages(pdf_file)):
             try:

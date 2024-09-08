@@ -1,4 +1,3 @@
 from typing import Literal
 
-
-DocumentFormat = Literal["pdf", "docx"]
+DocumentFormat = Literal["pdf", "docx", "doc"]
