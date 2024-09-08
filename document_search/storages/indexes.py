@@ -3,11 +3,7 @@ from langchain_community.docstore import InMemoryDocstore  # type: ignore
 from langchain_community.vectorstores.faiss import FAISS  # type: ignore
 from langchain_core.documents import Document  # type: ignore
 
-from document_search.entities import (
-    DocEntity,
-    TextDocEntity,
-    TextDocument,
-)
+from document_search.entities import DocEntity, TextDocEntity, TextDocument
 from document_search.search.embedders import TextEntityEmbedderE5
 from document_search.storages.interfaces import DocumentStorage
 
