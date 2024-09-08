@@ -1,5 +1,5 @@
 import numpy as np
-from langchain_community.embeddings import HuggingFaceEmbeddings  # type: ignore
+from langchain_community.embeddings import HuggingFaceEmbeddings
 
 from document_search.entities import TextDocEntity, VectorizedDocEntity
 from document_search.search.interfaces import TextEntityEmbedder
