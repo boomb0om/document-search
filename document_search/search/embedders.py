@@ -16,7 +16,6 @@ class TextEntityEmbedderE5(TextEntityEmbedder):
         vector = np.array(self.embedder.embed_documents([item.text]))
 
         return VectorizedDocEntity(
-            id_=item.id_,
             position=item.position,
             vector=vector
         )
