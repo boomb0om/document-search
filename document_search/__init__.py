@@ -4,6 +4,7 @@ __version__ = "1.0.0"
 
 from .entities import (
     DocEntity,
+    EntityPosition,
     ImageDocEntity,
     ProcessedDocument,
     TableDocEntity,
