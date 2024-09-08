@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from typing import Literal
+from typing import Any, Literal
 
 import numpy as np
 from PIL import Image
@@ -9,15 +9,15 @@ from PIL import Image
 class EntityPosition:
     page_number: int
 
-    def __eq__(self, other):
+    def __eq__(self, other: Any) -> bool:
         return (
             isinstance(other, EntityPosition) and self.page_number == other.page_number
         )
 
-    def __hash__(self):
+    def __hash__(self) -> int:
         return hash(self.page_number)
 
-    def __str__(self):
+    def __str__(self) -> str:
         return f"Page Number: {self.page_number}"
 
 
@@ -35,7 +35,7 @@ class ProcessedDocument:
     page_entities: dict[int, list[DocEntity]]
 
     @classmethod
-    def empty(cls):
+    def empty(cls) -> "ProcessedDocument":
         return cls(
             name="", num_pages=0, original_format="", entities=[], page_entities={}
         )

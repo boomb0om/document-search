@@ -40,9 +40,11 @@ class DocumentReader:
             logger.exception(exc)
             return []
 
-    def _crop_image_from_pdf(self, element: LTFigure, page_object) -> Image.Image:
-        page_object.mediabox.lower_left = (element.x0, element.y0)
-        page_object.mediabox.upper_right = (element.x1, element.y1)
+    def _crop_image_from_pdf(
+        self, element: LTFigure, page_object: PyPDF2.PageObject
+    ) -> Image.Image:
+        page_object.mediabox.lower_left = [element.x0, element.y0]
+        page_object.mediabox.upper_right = [element.x1, element.y1]
 
         pdf_writer = PyPDF2.PdfWriter()
         pdf_writer.add_page(page_object)
@@ -59,7 +61,7 @@ class DocumentReader:
         return image
 
     def _process_table(self, table: list[list[str | None]]) -> list[list[str]]:
-        def replace_none(elem):
+        def replace_none(elem: str | None) -> str:
             return elem if elem is not None else ""
 
         return [
@@ -152,4 +154,5 @@ class DocumentReader:
 
         return ProcessedDocument.empty()
 
-    def process_docx(self, document_path: str) -> ProcessedDocument: ...
+    def process_docx(self, document_path: str) -> ProcessedDocument:
+        raise NotImplementedError
