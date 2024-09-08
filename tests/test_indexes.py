@@ -1,6 +1,6 @@
 import pytest
 from langchain_community.embeddings import HuggingFaceEmbeddings  # type: ignore
-from document_search.entities import TextDocEntity, DocEntity, VectorizedDocument, EntityPosition, TextDocument
+from document_search.entities import TextDocEntity, EntityPosition, TextDocument
 from document_search.storages.indexes import DocumentStorageE5, TextEntityEmbedderE5
 
 

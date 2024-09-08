@@ -1,7 +1,7 @@
-import faiss
-from langchain_community.docstore import InMemoryDocstore
-from langchain_community.vectorstores.faiss import FAISS
-from langchain_core.documents import Document
+import faiss  # type: ignore
+from langchain_community.docstore import InMemoryDocstore  # type: ignore
+from langchain_community.vectorstores.faiss import FAISS  # type: ignore
+from langchain_core.documents import Document  # type: ignore
 
 from document_search.entities import (
     DocEntity,
