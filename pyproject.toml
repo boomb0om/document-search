@@ -2,7 +2,9 @@
 requires = [
     "hatchling >= 1.13.0",
     "wheel",
-    "Cython~=3.0.5"
+    "Cython~=3.0.5",
+    "langchain >= 0.2.16",
+    "langchain_community >= 0.2.16"
 ]
 build-backend = "hatchling.build"
 
