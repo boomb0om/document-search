@@ -1,7 +1,7 @@
 from document_search.entities import TextDocEntity, VectorizedDocEntity
 from document_search.search.interfaces import TextEntityEmbedder
 import numpy as np
-from langchain_community.embeddings import HuggingFaceEmbeddings
+from langchain_community.embeddings import HuggingFaceEmbeddings  # type: ignore
 
 
 class TextEntityEmbedderE5(TextEntityEmbedder):
