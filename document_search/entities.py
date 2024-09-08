@@ -11,7 +11,8 @@ class EntityPosition:
 
     def __eq__(self, other: Any) -> bool:
         return (
-            isinstance(other, EntityPosition) and self.page_number == other.page_number
+                isinstance(other, EntityPosition)
+                and self.page_number == other.page_number
         )
 
     def __hash__(self) -> int:
@@ -69,3 +70,10 @@ class VectorizedDocument:
     name: str
     id_: str
     entities: list[VectorizedDocEntity]
+
+
+@dataclass
+class TextDocument:
+    name: str
+    id_: str
+    entities: list[TextDocEntity]
