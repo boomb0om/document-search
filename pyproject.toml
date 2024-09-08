@@ -6,7 +6,8 @@ requires = [
     "langchain >= 0.2.16",
     "langchain_community >= 0.2.16",
     "sentence-transformers >= 3.0.1",
-    "pytest >= 8.3.2"
+    "pytest >= 8.3.2",
+    "faiss-cpu >= 1.8.0"
 ]
 build-backend = "hatchling.build"
 

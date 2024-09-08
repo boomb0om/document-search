@@ -11,6 +11,7 @@ class TextEntityEmbedderE5(TextEntityEmbedder):
         self.embedder = HuggingFaceEmbeddings(
             model_name='intfloat/multilingual-e5-base'
         )
+        self.embed_shape = 768
 
     def vectorize(self, item: TextDocEntity) -> VectorizedDocEntity:
         vector = np.array(self.embedder.embed_documents([item.text]))
