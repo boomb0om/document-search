@@ -7,18 +7,17 @@ from PIL import Image
 
 @dataclass
 class EntityPosition:
+    document_name: str
     page_number: int
 
     def __eq__(self, other: Any) -> bool:
         return (
-            isinstance(other, EntityPosition) and self.page_number == other.page_number
+            isinstance(other, EntityPosition)
+            and self.page_number == other.page_number
         )
 
-    def __hash__(self) -> int:
-        return hash(self.page_number)
-
     def __str__(self) -> str:
-        return f"Page Number: {self.page_number}"
+        return f"(document_name={self.document_name}, page={self.page_number})"
 
 
 @dataclass
@@ -30,15 +29,11 @@ class DocEntity:
 class ProcessedDocument:
     name: str
     num_pages: int
-    original_format: Literal["", "pdf", "docx"]
+    original_format: Literal["pdf", "docx"]
     entities: list[DocEntity]
-    page_entities: dict[int, list[DocEntity]]
 
-    @classmethod
-    def empty(cls) -> "ProcessedDocument":
-        return cls(
-            name="", num_pages=0, original_format="", entities=[], page_entities={}
-        )
+    def get_entities_on_page(self, page: int) -> list[DocEntity]:
+        return [entity for entity in self.entities if entity.position.page_number == page]
 
 
 @dataclass
@@ -69,3 +64,10 @@ class VectorizedDocument:
     name: str
     id_: str
     entities: list[VectorizedDocEntity]
+
+
+@dataclass
+class TextDocument:
+    name: str
+    id_: str
+    entities: list[TextDocEntity]

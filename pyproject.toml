@@ -21,7 +21,13 @@ dependencies = [
   "pdf2image==1.17.0",
   "Pillow==10.4.0",
   "PyMuPDF==1.24.10",
-  "PyPDF2==3.0.1"
+  "PyPDF2==3.0.1",
+  "langchain>=0.2.16",
+  "langchain_community>=0.2.16",
+  "sentence-transformers>=3.0.1",
+  "pytest>=8.3.2",
+  "faiss-cpu>=1.8.0",
+  "tqdm"
 ]
 
 [project.optional-dependencies]
@@ -56,11 +62,12 @@ ignore = [
     "C901", # too complex
     "W191", # indentation contains tabs
     "E741", # Ambiguous variable name
+    "E501"
 ]
 ignore-init-module-imports = true
 
 [tool.ruff.lint.per-file-ignores]
-"__init__.py" = ["F401"]
+"__init__.py" = ["F401", "E501"]
 
 [tool.ruff.lint.pyupgrade]
 keep-runtime-typing = true
