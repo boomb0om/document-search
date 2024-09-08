@@ -23,7 +23,7 @@ class DocumentStorageE5(DocumentStorage):
     def __init__(self, embedder: TextEntityEmbedderE5, batch_size: int = 16) -> None:
         self.embedder = embedder
         self.batch_size = batch_size
-        self.index = faiss.IndexFlatL2(self.embedder.embed_shape)
+        self.index = faiss.IndexFlatIP(self.embedder.embed_shape)
 
         self.vector_store = FAISS(
             embedding_function=self.embedder.embedder,

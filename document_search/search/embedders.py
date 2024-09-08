@@ -9,7 +9,8 @@ class TextEntityEmbedderE5(TextEntityEmbedder):
 
     def __init__(self) -> None:
         self.embedder = HuggingFaceEmbeddings(
-            model_name='intfloat/multilingual-e5-base'
+            model_name='intfloat/multilingual-e5-base',
+            encode_kwargs={'normalize_embeddings': True}
         )
         self.embed_shape = 768
 
