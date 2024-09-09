@@ -1,8 +1,10 @@
 from dataclasses import dataclass
-from typing import Any, Literal
+from typing import Any
 
 import numpy as np
 from PIL import Image
+
+from .types import DocumentFormat
 
 
 @dataclass
@@ -29,7 +31,7 @@ class DocEntity:
 class ProcessedDocument:
     name: str
     num_pages: int
-    original_format: Literal["pdf", "docx"]
+    original_format: DocumentFormat
     entities: list[DocEntity]
 
     def get_entities_on_page(self, page: int) -> list[DocEntity]:
