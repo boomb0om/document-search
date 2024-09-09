@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from typing import Any, Literal
+from typing import Any, Literal, Optional
 
 import numpy as np
 from PIL import Image
@@ -40,6 +40,7 @@ class ProcessedDocument:
 class TextDocEntity(DocEntity):
     position: EntityPosition
     text: str
+    context: Optional[str] = None
 
 
 @dataclass
