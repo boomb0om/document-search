@@ -70,7 +70,7 @@ class DocumentStorageE5(DocumentStorage):
         relevant_entities = []
 
         for entity in doc_entities:
-            if position.page_number - context_length <= entity.position.page_number <= position.page_number + context_length:
+            if isinstance(entity, TextDocEntity) and position.page_number - context_length <= entity.position.page_number <= position.page_number + context_length:
                 relevant_entities.append(entity.text)
 
         context = "\n".join(relevant_entities)

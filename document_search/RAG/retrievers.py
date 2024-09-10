@@ -1,6 +1,7 @@
-from langchain.chains import ConversationalRetrievalChain
+from langchain.chains import LLMChain
+from langchain.prompts import PromptTemplate
+
 from langchain_community.llms import YandexGPT
-from langchain.text_splitter import RecursiveCharacterTextSplitter
 from document_search.search import TextEntityEmbedderE5
 from document_search.storages import DocumentStorageE5
 
@@ -8,11 +9,18 @@ import getpass
 
 
 class RAGRetriever:
-    def __init__(self, embedder: TextEntityEmbedderE5, storage: DocumentStorageE5):
+    def __init__(self, embedder: TextEntityEmbedderE5, storage: DocumentStorageE5, path_to_prompt: str):
         self.embedder = embedder
         self.storage = storage
         iam_token = getpass.getpass()
         self.llm = YandexGPT(iam_token=iam_token, folder_id='b1g5kpnfuptevfeqk1nm')
+        with open(path_to_prompt, 'r', encoding='utf-8') as file:
+            prompt_template_str = file.read()
+        self.prompt = PromptTemplate(
+            input_variables=["query", "context"],
+            template=prompt_template_str,
+        )
+        self.llm_chain = LLMChain(llm=self.llm, prompt=self.prompt)
         self.vector_store = storage.vector_store
 
     def get_context_for_query(self, query: str, k: int, context_length: int) -> str:
@@ -26,11 +34,10 @@ class RAGRetriever:
 
     def retrieve_answer(self, query: str, k: int = 1, context_length: int = 1) -> str:
         context = self.get_context_for_query(query, k, context_length)
-        # retriever = ConversationalRetrievalChain(
-        #     retriever=self.vector_store,
-        #     text_splitter=RecursiveCharacterTextSplitter(),
-        #     llm=self.llm,
-        #     retriever_mode="answer_question"
-        # )
-        answer = self.llm(context + "\n" + query)
+        answer = self.llm_chain.run(
+            {
+                'query': query,
+                'context': context
+            }
+        )
         return answer
