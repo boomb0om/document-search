@@ -8,7 +8,12 @@ from langchain_community.vectorstores.faiss import FAISS
 from langchain_core.documents import Document
 from tqdm import tqdm
 
-from document_search.entities import DocEntity, TextDocEntity, TextDocument, EntityPosition
+from document_search.entities import (
+    DocEntity,
+    EntityPosition,
+    TextDocEntity,
+    TextDocument,
+)
 from document_search.search.embedders import TextEntityEmbedderE5
 from document_search.storages.interfaces import DocumentStorage
 
