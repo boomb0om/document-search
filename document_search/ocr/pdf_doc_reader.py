@@ -61,7 +61,7 @@ class PDFDocumentReader(IDocumentReader):
         pdf_writer = PyPDF2.PdfWriter()
         pdf_writer.add_page(page_object)
 
-        tmp_pdf_path = "__tmp_cropped_image_file.pdf"
+        tmp_pdf_path = str(uuid.uuid4().hex) + '.pdf'
         try:
             with open(tmp_pdf_path, "wb") as file:
                 pdf_writer.write(file)
