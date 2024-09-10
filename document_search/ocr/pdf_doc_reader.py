@@ -1,4 +1,5 @@
 import io
+import uuid
 from pathlib import Path
 
 import fitz
@@ -16,6 +17,7 @@ from document_search import (
     TableDocEntity,
     TextDocEntity,
 )
+from document_search.types import DocumentFormat
 
 from .doc_reader_interface import IDocumentReader
 from .exceptions import ExtractImageError, ExtractTablesError, ExtractTextBlockError
@@ -32,7 +34,24 @@ class PDFDocumentReader(IDocumentReader):
                 return Image.frombytes("RGB", (pix.width, pix.height), pix.samples)
 
             return list(map(get_image, range(len(pdf_document))))
-
+        
+    def extract_page_as_image(
+        self,
+        file: io.IOBase | str,
+        file_format: DocumentFormat,
+        page: int,
+    ) -> Image.Image:
+        tmp_filename = str(uuid.uuid4().hex) + '.pdf'
+        with open(tmp_filename, "wb") as tmpfile:
+            file.seek(0)
+            tmpfile.write(file.read())
+        with fitz.open(tmp_filename) as pdf_document:
+            page = pdf_document.load_page(page)
+            pix = page.get_pixmap()
+            image = Image.frombytes("RGB", (pix.width, pix.height), pix.samples)
+        Path(tmp_filename).unlink(missing_ok=True)
+        return image
+        
     def _crop_image_from_pdf(
         self, element: LTFigure, page_object: PyPDF2.PageObject
     ) -> Image.Image:
