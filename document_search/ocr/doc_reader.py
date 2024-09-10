@@ -23,7 +23,8 @@ class DocumentReader(IDocumentReader):
     def read(
         self,
         file: io.IOBase | str,
-        filename: str | None = None
+        filename: str | None = None,
+        document_id: str | None = None
     ) -> tuple[ProcessedDocument, list[Exception]]:
         if isinstance(file, str):
             file_obj = open(file, "rb")
@@ -36,4 +37,7 @@ class DocumentReader(IDocumentReader):
         if ext not in self.format2reader:
             raise ValueError(f"Unsupported file format: {ext}")
 
-        return self.format2reader[ext].read(file_obj, filename)  # type: ignore
+        document, errors = self.format2reader[ext].read(file_obj, filename)  # type: ignore
+        for entity in document.entities:
+            entity.position.document_id = document_id
+        return document, errors

@@ -1,5 +1,4 @@
 from dataclasses import dataclass
-from typing import Any
 
 import numpy as np
 from PIL import Image
@@ -11,15 +10,10 @@ from .types import DocumentFormat
 class EntityPosition:
     document_name: str
     page_number: int
-
-    def __eq__(self, other: Any) -> bool:
-        return (
-            isinstance(other, EntityPosition)
-            and self.page_number == other.page_number
-        )
+    document_id: str | None = None
 
     def __str__(self) -> str:
-        return f"(document_name={self.document_name}, page={self.page_number})"
+        return f"(document_id={self.document_id}, document_name={self.document_name}, page={self.page_number})"
 
 
 @dataclass
