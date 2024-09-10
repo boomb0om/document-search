@@ -1,4 +1,5 @@
 import getpass
+import os
 
 from langchain.chains import LLMChain
 from langchain.prompts import PromptTemplate
@@ -7,15 +8,18 @@ from langchain_community.llms import YandexGPT
 from document_search.search import TextEntityEmbedderE5
 from document_search.storages import DocumentStorageE5
 
+from .prompt import RAG_SYSTEM_PROMPT
+from .credentials import YANDEX_FOLDER_ID, YANDEX_GPT_KEY  # type: ignore
+
 
 class RAGRetriever:
-    def __init__(self, embedder: TextEntityEmbedderE5, storage: DocumentStorageE5, path_to_prompt: str):
+    def __init__(self, embedder: TextEntityEmbedderE5, storage: DocumentStorageE5):
         self.embedder = embedder
         self.storage = storage
-        iam_token = getpass.getpass()
-        self.llm = YandexGPT(iam_token=iam_token, folder_id='b1g5kpnfuptevfeqk1nm')
-        with open(path_to_prompt, encoding='utf-8') as file:
-            prompt_template_str = file.read()
+        self.llm = YandexGPT(iam_token=YANDEX_GPT_KEY, folder_id=YANDEX_FOLDER_ID)  # type: ignore
+
+        prompt_template_str = RAG_SYSTEM_PROMPT
+
         self.prompt = PromptTemplate(
             input_variables=["query", "context"],
             template=prompt_template_str,
