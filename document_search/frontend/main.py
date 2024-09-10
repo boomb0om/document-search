@@ -2,7 +2,14 @@ import logging
 import time
 
 import streamlit as st
-from api import add_document, get_storage_info, get_uploading_status, search_query
+from streamlit.runtime.uploaded_file_manager import UploadedFile
+
+from document_search.frontend.api import (
+    add_document,
+    get_storage_info,
+    get_uploading_status,
+    search_query,
+)
 
 
 def get_doc_id2filename() -> dict[str, str]:
@@ -19,7 +26,7 @@ def get_doc_filename2id() -> dict[str, str]:
     }
 
 
-def st_process_uploaded_files(uploaded_files):
+def st_process_uploaded_files(uploaded_files: list[UploadedFile]) -> None:
     for file in uploaded_files:
         response = add_document(file)
         status = get_uploading_status(response["documentID"])["status"]
@@ -37,7 +44,7 @@ def st_process_uploaded_files(uploaded_files):
             st.error(f"Что-то пошло не так. Статус: {status}")
 
 
-def st_process_query(query, document_ids):
+def st_process_query(query: str, document_ids: list[str]) -> None:
     st.header("Ответ LLM:")
     # TODO: add LLM answer handling
     st.markdown("ТекстТекстТекст")
@@ -54,7 +61,7 @@ def st_process_query(query, document_ids):
         st.markdown(res["text"])
 
 
-def main():
+def main() -> None:
     st.title("Приложение для ответов на вопросы по документам")
 
     with st.form("upload_files_key"):
@@ -63,7 +70,7 @@ def main():
         )
         button = st.form_submit_button("Подтвердить")
 
-    if button:
+    if button and uploaded_files is not None:
         st_process_uploaded_files(uploaded_files)
 
     doc_filename2id = get_doc_filename2id()
