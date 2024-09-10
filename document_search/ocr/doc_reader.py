@@ -1,5 +1,6 @@
 import io
 import os
+from PIL import Image
 
 from document_search.entities import ProcessedDocument
 from document_search.types import DocumentFormat
@@ -41,3 +42,14 @@ class DocumentReader(IDocumentReader):
         for entity in document.entities:
             entity.position.document_id = document_id
         return document, errors
+
+    def extract_page_as_image(
+        self,
+        file: io.IOBase | str,
+        file_format: DocumentFormat,
+        page: int
+    ) -> Image.Image:
+        if file_format not in self.format2reader:
+            raise ValueError(f"Unsupported file format: {file_format}")
+
+        return self.format2reader[file_format].extract_page_as_image(file, file_format, page)
