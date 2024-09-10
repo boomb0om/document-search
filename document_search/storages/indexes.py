@@ -12,8 +12,8 @@ from tqdm import tqdm
 from document_search.entities import (
     DocEntity,
     EntityPosition,
-    TextDocEntity,
     ProcessedDocument,
+    TextDocEntity,
 )
 from document_search.search.embedders import TextEntityEmbedderE5
 from document_search.storages.interfaces import DocumentStorage
@@ -40,7 +40,6 @@ class DocumentStorageE5(DocumentStorage):
             docstore=InMemoryDocstore(),
             index_to_docstore_id={}
         )
-        self.documents = {}
 
     def _add_text_entities_batch(self, entities: list[TextDocEntity]) -> None:
         documents = []
@@ -57,20 +56,19 @@ class DocumentStorageE5(DocumentStorage):
 
     def add_document_text_entities(self, document: ProcessedDocument, pbar: bool = False) -> None:
         text_entities = [i for i in document.entities if isinstance(i, TextDocEntity)]
-        self.documents[document.name] = text_entities
         for batch in tqdm(split_to_batches(text_entities, self.batch_size), disable=not pbar,
                           total=len(text_entities) // self.batch_size):
             self._add_text_entities_batch(batch)
 
     def get_relevant_entities_with_context(
-        self, 
-        query: str, 
-        k: int, 
+        self,
+        query: str,
+        k: int,
         context_length: int = 1
     ) -> list[tuple[DocEntity, str, float]]:
         results = self.vector_store.similarity_search_with_score(query, k=k)
 
-        relevant_data = []
+        relevant_data: list[tuple[DocEntity, str, float]] = []
         for result, score in results:
             position = result.metadata["position"]
             text = result.page_content
@@ -82,7 +80,7 @@ class DocumentStorageE5(DocumentStorage):
         return relevant_data
 
     def retrieve_context(self, position: EntityPosition, context_length: int = 2) -> str:
-        doc_entities = self.documents.get(position.document_name, [])
+        doc_entities = self.document_store[position.document_id].entities  # type: ignore
         relevant_entities = []
 
         for entity in doc_entities:
@@ -101,6 +99,11 @@ class DocumentStorageE5(DocumentStorage):
     ) -> str:
         if doc_id is None:
             doc_id = str(uuid.uuid4().hex)
+
+        for entity in document.entities:
+            if entity.position.document_id is None:
+                assert doc_id is not None
+                entity.position.document_id = doc_id
 
         self.raw_store[doc_id] = doc_bytes
         self.document_store[doc_id] = document
