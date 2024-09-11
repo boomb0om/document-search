@@ -1,15 +1,17 @@
+import io
 import logging
 import time
 
 import streamlit as st
-from streamlit.runtime.uploaded_file_manager import UploadedFile
-
-from document_search.frontend.api import (
+from api import (
     add_document,
+    get_image_by_id,
     get_storage_info,
     get_uploading_status,
     search_query,
 )
+from PIL import Image
+from streamlit.runtime.uploaded_file_manager import UploadedFile
 
 
 def get_doc_id2filename() -> dict[str, str]:
@@ -45,13 +47,11 @@ def st_process_uploaded_files(uploaded_files: list[UploadedFile]) -> None:
 
 
 def st_process_query(query: str, document_ids: list[str]) -> None:
+    response = search_query(query, document_ids, use_rag=True)
     st.header("Ответ LLM:")
-    # TODO: add LLM answer handling
-    st.markdown("ТекстТекстТекст")
+    st.markdown(response["llm_answer"])
 
-    response = search_query(query, document_ids)
     doc_id2filename = get_doc_id2filename()
-
     st.header("Результаты поиска:")
 
     for res in response["results"]:
@@ -59,6 +59,10 @@ def st_process_query(query: str, document_ids: list[str]) -> None:
             f"Документ {doc_id2filename[res['document_id']]}, страница {res['page']}:"
         )
         st.markdown(res["text"])
+        with st.expander("Посмотреть страницу"):
+            image_bytes = get_image_by_id(res["document_id"], res["page"])
+            image = Image.open(image_bytes).convert("RGB")
+            st.image(image)
 
 
 def main() -> None:
