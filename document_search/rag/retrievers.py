@@ -7,7 +7,7 @@ from document_search.entities import DocEntity
 from document_search.search import TextEntityEmbedderE5
 from document_search.storages import DocumentStorageE5
 
-from .credentials import YANDEX_FOLDER_ID, YANDEX_GPT_KEY  # type: ignore
+from .credentials import YANDEX_FOLDER_ID, API_KEY  # type: ignore
 from .prompt import RAG_SYSTEM_PROMPT
 
 
@@ -15,7 +15,7 @@ class YandexGPTRetriever:
     def __init__(self, embedder: TextEntityEmbedderE5, storage: DocumentStorageE5):
         self.embedder = embedder
         self.storage = storage
-        self.llm = YandexGPT(iam_token=YANDEX_GPT_KEY, folder_id=YANDEX_FOLDER_ID)  # type: ignore
+        self.llm = YandexGPT(api_key=API_KEY, folder_id=YANDEX_FOLDER_ID, model_name='yandexgpt')  # type: ignore
 
         prompt_template_str = RAG_SYSTEM_PROMPT
 
