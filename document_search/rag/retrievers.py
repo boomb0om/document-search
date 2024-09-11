@@ -15,7 +15,7 @@ class YandexGPTRetriever:
     def __init__(self, embedder: TextEntityEmbedderE5, storage: DocumentStorageE5):
         self.embedder = embedder
         self.storage = storage
-        self.llm = YandexGPT(iam_token=YANDEX_GPT_KEY, folder_id=YANDEX_FOLDER_ID)  # type: ignore
+        self.llm = YandexGPT(iam_token=YANDEX_GPT_KEY, folder_id=YANDEX_FOLDER_ID, model_name='yandexgpt')  # type: ignore
 
         prompt_template_str = RAG_SYSTEM_PROMPT
 
