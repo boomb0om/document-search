@@ -1,5 +1,6 @@
 import io
 import os
+
 from PIL import Image
 
 from document_search.entities import ProcessedDocument
@@ -8,8 +9,6 @@ from document_search.types import DocumentFormat
 from .doc_reader_interface import IDocumentReader
 from .docx_doc_reader import DocxDocumentReader
 from .pdf_doc_reader import PDFDocumentReader
-from .txt_reader import TxtDocumentReader
-from .markdown_reader import MarkdownDocumentReader
 
 
 class DocumentReader(IDocumentReader):

@@ -34,7 +34,7 @@ class PDFDocumentReader(IDocumentReader):
                 return Image.frombytes("RGB", (pix.width, pix.height), pix.samples)
 
             return list(map(get_image, range(len(pdf_document))))
-        
+
     def extract_page_as_image(
         self,
         file: io.IOBase | str,
@@ -43,15 +43,15 @@ class PDFDocumentReader(IDocumentReader):
     ) -> Image.Image:
         tmp_filename = str(uuid.uuid4().hex) + '.pdf'
         with open(tmp_filename, "wb") as tmpfile:
-            file.seek(0)
-            tmpfile.write(file.read())
+            file.seek(0)  # type: ignore
+            tmpfile.write(file.read())  # type: ignore
         with fitz.open(tmp_filename) as pdf_document:
             page = pdf_document.load_page(page)
-            pix = page.get_pixmap()
+            pix = page.get_pixmap()  # type: ignore
             image = Image.frombytes("RGB", (pix.width, pix.height), pix.samples)
         Path(tmp_filename).unlink(missing_ok=True)
         return image
-        
+
     def _crop_image_from_pdf(
         self, element: LTFigure, page_object: PyPDF2.PageObject
     ) -> Image.Image:

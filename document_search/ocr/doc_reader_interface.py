@@ -1,5 +1,6 @@
 import io
 from typing import Protocol
+
 from PIL import Image
 
 from document_search.entities import ProcessedDocument

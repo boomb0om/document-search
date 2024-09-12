@@ -1,4 +1,4 @@
-from typing import Optional
+
 from langchain.chains import LLMChain
 from langchain.prompts import PromptTemplate
 from langchain_community.llms import YandexGPT
@@ -35,12 +35,12 @@ class YandexGPTRetriever:
         return full_context
 
     def retrieve_answer(
-        self, 
-        query: str, 
-        k: int = 5, 
-        rag_k: int = 1, 
+        self,
+        query: str,
+        k: int = 5,
+        rag_k: int = 1,
         context_length: int = 1,
-        document_ids: Optional[list[str]] = None
+        document_ids: list[str] | None = None
     ) -> str:
         retrieved_data = self.storage.get_relevant_entities(query, k, document_ids)
         context = self.get_context_for_entities([entity for entity, _ in retrieved_data][:rag_k], context_length)
@@ -59,7 +59,7 @@ class YandexGPTRetriever:
         k: int = 5,
         rag_k: int = 1,
         context_length: int = 1,
-        document_ids: Optional[list[str]] = None
+        document_ids: list[str] | None = None
     ) -> tuple[list[tuple[DocEntity, float]], str]:
         retrieved_data = self.storage.get_relevant_entities(query, k, document_ids)
         context = self.get_context_for_entities([entity for entity, _ in retrieved_data][:rag_k], context_length)

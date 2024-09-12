@@ -1,6 +1,7 @@
 import io
 import uuid
-from typing import Any, Optional, Iterable
+from collections.abc import Iterable
+from typing import Any
 
 import faiss  # type: ignore
 from langchain_community.docstore import InMemoryDocstore
@@ -54,10 +55,10 @@ class DocumentStorageE5(DocumentStorage):
         self.vector_store.add_documents(documents, ids=ids)
 
     def _similarity_search(
-            self, query: str, k: int, document_ids: Optional[list[str]] = None
+            self, query: str, k: int, document_ids: list[str] | None = None
         ) -> list[tuple[Document, float]]:
         if document_ids is not None and isinstance(document_ids, list) and len(document_ids) > 0:
-            filter_fn = lambda metadata: metadata["position"].document_id in document_ids
+            filter_fn = lambda metadata: metadata["position"].document_id in document_ids  # noqa
         else:
             filter_fn = None
 
@@ -74,7 +75,7 @@ class DocumentStorageE5(DocumentStorage):
         query: str,
         k: int,
         context_length: int = 1,
-        document_ids: Optional[list[str]] = None
+        document_ids: list[str] | None = None
     ) -> list[tuple[DocEntity, str, float]]:
         results = self._similarity_search(query, k, document_ids)
 
@@ -122,7 +123,7 @@ class DocumentStorageE5(DocumentStorage):
         return doc_id
 
     def get_relevant_entities(
-        self, query: str, k: int, document_ids: Optional[list[str]] = None
+        self, query: str, k: int, document_ids: list[str] | None = None
     ) -> list[tuple[DocEntity, float]]:
         results = self._similarity_search(query, k, document_ids)
 
