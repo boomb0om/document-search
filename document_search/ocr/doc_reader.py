@@ -8,6 +8,8 @@ from document_search.types import DocumentFormat
 from .doc_reader_interface import IDocumentReader
 from .docx_doc_reader import DocxDocumentReader
 from .pdf_doc_reader import PDFDocumentReader
+from .txt_reader import TxtDocumentReader
+from .markdown_reader import MarkdownDocumentReader
 
 
 class DocumentReader(IDocumentReader):
@@ -17,8 +19,9 @@ class DocumentReader(IDocumentReader):
         self.pdf_reader = PDFDocumentReader()
         self.format2reader: dict[DocumentFormat, IDocumentReader] = {
             'pdf': self.pdf_reader,
-            'docx': self.docx_reader,
-            'doc': self.docx_reader,
+            # 'docx': self.docx_reader,  # TODO
+            # 'txt': TxtDocumentReader(),  # TODO
+            # 'markdown': MarkdownDocumentReader(),  # TODO
         }
 
     def read(
