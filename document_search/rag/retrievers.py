@@ -7,7 +7,7 @@ from document_search.entities import DocEntity
 from document_search.search import TextEntityEmbedderE5
 from document_search.storages import DocumentStorageE5
 
-from .credentials import YANDEX_FOLDER_ID, YANDEX_GPT_KEY  # type: ignore
+from .credentials import YANDEX_FOLDER_ID, YANDEX_GPT_KEY
 from .prompt import RAG_SYSTEM_PROMPT
 
 

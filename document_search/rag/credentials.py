@@ -1,0 +1,2 @@
+YANDEX_GPT_KEY = ""
+YANDEX_FOLDER_ID = ""
