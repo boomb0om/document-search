@@ -32,3 +32,10 @@ pip install ".[dev]"
 Также установите make.
 
 Чтобы запустить проверку кодстайла, выполните: `make codestyle`. Чтобы запустить автоматический фикс кодстайла, выполните: `make autofix`
+
+
+## Запуск frontend-части
+Для запуска выполните команду:
+```bash
+streamlit run frontend/main.py [-- script args]
+```
