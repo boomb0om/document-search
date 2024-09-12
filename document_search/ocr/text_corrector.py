@@ -16,4 +16,4 @@ class TextCorrector:
         )
 
     def __call__(self, texts: list[str]) -> list[str]:
-        return [out["generated_text"] for out in self.pipeline(texts)]  # type: ignore
+        return [out["generated_text"] for out in self.pipeline(texts)]

@@ -7,7 +7,7 @@ from document_search.entities import DocEntity
 from document_search.search import TextEntityEmbedderE5
 from document_search.storages import DocumentStorageE5
 
-from .credentials import YANDEX_FOLDER_ID, API_KEY  # type: ignore
+from .credentials import YANDEX_FOLDER_ID, YANDEX_GPT_KEY  # type: ignore
 from .prompt import RAG_SYSTEM_PROMPT
 
 
@@ -15,7 +15,7 @@ class YandexGPTRetriever:
     def __init__(self, embedder: TextEntityEmbedderE5, storage: DocumentStorageE5):
         self.embedder = embedder
         self.storage = storage
-        self.llm = YandexGPT(api_key=API_KEY, folder_id=YANDEX_FOLDER_ID, model_name='yandexgpt')  # type: ignore
+        self.llm = YandexGPT(api_key=YANDEX_GPT_KEY, folder_id=YANDEX_FOLDER_ID, model_name='yandexgpt')  # type: ignore
 
         prompt_template_str = RAG_SYSTEM_PROMPT
 
@@ -34,8 +34,15 @@ class YandexGPTRetriever:
         full_context = "\n".join(context_list)
         return full_context
 
-    def retrieve_answer(self, query: str, k: int = 5, rag_k: int = 1, context_length: int = 1) -> str:
-        retrieved_data = self.storage.get_relevant_entities(query, k)
+    def retrieve_answer(
+        self,
+        query: str,
+        k: int = 5,
+        rag_k: int = 1,
+        context_length: int = 1,
+        document_ids: list[str] | None = None
+    ) -> str:
+        retrieved_data = self.storage.get_relevant_entities(query, k, document_ids)
         context = self.get_context_for_entities([entity for entity, _ in retrieved_data][:rag_k], context_length)
 
         answer: str = self.llm_chain.run(
@@ -51,9 +58,10 @@ class YandexGPTRetriever:
         query: str,
         k: int = 5,
         rag_k: int = 1,
-        context_length: int = 1
+        context_length: int = 1,
+        document_ids: list[str] | None = None
     ) -> tuple[list[tuple[DocEntity, float]], str]:
-        retrieved_data = self.storage.get_relevant_entities(query, k)
+        retrieved_data = self.storage.get_relevant_entities(query, k, document_ids)
         context = self.get_context_for_entities([entity for entity, _ in retrieved_data][:rag_k], context_length)
 
         answer = self.llm_chain.run(

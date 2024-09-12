@@ -129,10 +129,12 @@ async def search_query(data: SearchQuery) -> SearchResponse:
     if data.use_rag:
         search_result, llm_answer = await run_in_threadpool(
             retriever.retrieve_answer_detailed, 
-            data.query, k=data.top_k, context_length=data.context_length
+            data.query, k=data.top_k, 
+            context_length=data.context_length,
+            document_ids=data.document_ids
         )
     else:
-        search_result = storage.get_relevant_entities(data.query, data.top_k)
+        search_result = storage.get_relevant_entities(data.query, data.top_k, document_ids=data.document_ids)
         llm_answer = None
 
     items = [

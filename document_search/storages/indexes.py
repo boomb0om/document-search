@@ -54,6 +54,16 @@ class DocumentStorageE5(DocumentStorage):
             ids.append(entity_id)
         self.vector_store.add_documents(documents, ids=ids)
 
+    def _similarity_search(
+            self, query: str, k: int, document_ids: list[str] | None = None
+        ) -> list[tuple[Document, float]]:
+        if document_ids is not None and isinstance(document_ids, list) and len(document_ids) > 0:
+            filter_fn = lambda metadata: metadata["position"].document_id in document_ids  # noqa
+        else:
+            filter_fn = None
+
+        return self.vector_store.similarity_search_with_score(query, k=k, filter=filter_fn)
+
     def add_document_text_entities(self, document: ProcessedDocument, pbar: bool = False) -> None:
         text_entities = [i for i in document.entities if isinstance(i, TextDocEntity)]
         for batch in tqdm(split_to_batches(text_entities, self.batch_size), disable=not pbar,
@@ -64,9 +74,10 @@ class DocumentStorageE5(DocumentStorage):
         self,
         query: str,
         k: int,
-        context_length: int = 1
+        context_length: int = 1,
+        document_ids: list[str] | None = None
     ) -> list[tuple[DocEntity, str, float]]:
-        results = self.vector_store.similarity_search_with_score(query, k=k)
+        results = self._similarity_search(query, k, document_ids)
 
         relevant_data: list[tuple[DocEntity, str, float]] = []
         for result, score in results:
@@ -111,8 +122,10 @@ class DocumentStorageE5(DocumentStorage):
         self.add_document_text_entities(document, pbar=pbar)
         return doc_id
 
-    def get_relevant_entities(self, query: str, k: int) -> list[tuple[DocEntity, float]]:
-        results = self.vector_store.similarity_search_with_score(query, k=k)
+    def get_relevant_entities(
+        self, query: str, k: int, document_ids: list[str] | None = None
+    ) -> list[tuple[DocEntity, float]]:
+        results = self._similarity_search(query, k, document_ids)
 
         return [
             (

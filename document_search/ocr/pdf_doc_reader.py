@@ -51,11 +51,11 @@ class PDFDocumentReader(IDocumentReader):
     ) -> Image.Image:
         tmp_filename = str(uuid.uuid4().hex) + ".pdf"
         with open(tmp_filename, "wb") as tmpfile:
-            file.seek(0)
-            tmpfile.write(file.read())
+            file.seek(0)  # type: ignore
+            tmpfile.write(file.read())  # type: ignore
         with fitz.open(tmp_filename) as pdf_document:
             page = pdf_document.load_page(page)
-            pix = page.get_pixmap()
+            pix = page.get_pixmap()  # type: ignore
             image = Image.frombytes("RGB", (pix.width, pix.height), pix.samples)
         Path(tmp_filename).unlink(missing_ok=True)
         return image

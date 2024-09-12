@@ -20,5 +20,6 @@ class DocumentStorage(Protocol):
     def get_relevant_entities(
         self,
         query: str,
-        k: int
+        k: int,
+        document_ids: list[str] | None = None
     ) -> list[tuple[DocEntity, float]]: ...
