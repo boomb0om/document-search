@@ -1,4 +1,3 @@
-import io
 import logging
 import time
 
@@ -47,7 +46,9 @@ def st_process_uploaded_files(uploaded_files: list[UploadedFile]) -> None:
 
 
 def st_process_query(query: str, document_ids: list[str]) -> None:
-    response = search_query(query, document_ids, use_rag=True)
+    response = search_query(
+        query, None if len(document_ids) == 0 else document_ids, use_rag=True
+    )
     st.header("Ответ LLM:")
     st.markdown(response["llm_answer"])
 
