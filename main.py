@@ -8,7 +8,7 @@ from dotenv import load_dotenv
 import uvicorn
 from starlette.concurrency import run_in_threadpool
 
-from fastapi import FastAPI, HTTPException, File, UploadFile, BackgroundTasks
+from fastapi import FastAPI, Response, UploadFile, BackgroundTasks
 from fastapi.responses import JSONResponse
 from pydantic import BaseModel
 from loguru import logger
@@ -18,24 +18,28 @@ from document_search.ocr import DocumentReader, EntityProcessor
 from document_search.storages import DocumentStorageE5, DocumentStorage
 from document_search.search import TextEntityEmbedderE5, TextEntityEmbedder
 from document_search.app import DocumentStatusStorage, LocalDocumentStatusStorage
-
+from document_search.rag import YandexGPTRetriever
+from document_search.utils import extract_image_from_file
 from document_search.app.models import (
     StorageInfoResponse, StorageItemResponse, 
-    SearchQuery, SearchResponse, SearchResultItem
+    SearchQuery, SearchResponse, SearchResultItem,
+    GetImageData
 )
 
 
 storage: DocumentStorage = None
 embedder: TextEntityEmbedder = None
+retriever: YandexGPTRetriever = None
 doc_reader: DocumentReader = DocumentReader()
 status_storage: DocumentStatusStorage = LocalDocumentStatusStorage()
 
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    global embedder, storage
+    global embedder, storage, retriever
     embedder = TextEntityEmbedderE5()
     storage = DocumentStorageE5(embedder)
+    retriever = YandexGPTRetriever(embedder, storage)
     yield
 
 
@@ -99,11 +103,38 @@ async def get_storage_info() -> StorageInfoResponse:
     ]
 
     return StorageInfoResponse(items=items, total_documents=total_documents)
-    
+
+
+@app.get(
+    "/documents/get_image/",
+    responses = {
+        200: {"content": {"image/png": {}}}
+    },
+    response_class=Response
+)
+async def get_image(data: GetImageData) -> Response:
+    document_format = storage.document_store[data.document_id].original_format
+    document_bytes = storage.raw_store[data.document_id]
+    image = await run_in_threadpool(
+        extract_image_from_file, document_bytes, document_format, data.page
+    )
+    image_bytes = io.BytesIO()
+    image.save(image_bytes, format="JPEG")
+    image_bytes.seek(0)
+    return Response(content=image_bytes.read(), media_type="image/png")
+
 
 @app.post("/search/query/")
 async def search_query(data: SearchQuery) -> SearchResponse:
-    search_result = storage.get_relevant_entities(data.query, data.top_k)
+    if data.use_rag:
+        search_result, llm_answer = await run_in_threadpool(
+            retriever.retrieve_answer_detailed, 
+            data.query, k=data.top_k, context_length=data.context_length
+        )
+    else:
+        search_result = storage.get_relevant_entities(data.query, data.top_k)
+        llm_answer = None
+
     items = [
         SearchResultItem(
             document_id=entity.position.document_id, 
@@ -113,7 +144,7 @@ async def search_query(data: SearchQuery) -> SearchResponse:
         ) 
         for entity, score in search_result
     ]
-    return SearchResponse(query=data.query, results=items)
+    return SearchResponse(query=data.query, results=items, llm_answer=llm_answer)
 
 
 if __name__ == "__main__":
