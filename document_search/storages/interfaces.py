@@ -1,5 +1,5 @@
 import io
-from typing import Protocol
+from typing import Protocol, Optional
 
 from document_search import DocEntity
 from document_search.entities import ProcessedDocument
@@ -20,5 +20,6 @@ class DocumentStorage(Protocol):
     def get_relevant_entities(
         self,
         query: str,
-        k: int
+        k: int,
+        document_ids: Optional[list[str]] = None
     ) -> list[tuple[DocEntity, float]]: ...
