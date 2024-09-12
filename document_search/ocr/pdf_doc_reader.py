@@ -2,7 +2,9 @@ import io
 import uuid
 from pathlib import Path
 
+import easyocr
 import fitz
+import numpy as np
 import pdfplumber
 import PyPDF2
 from pdfminer.high_level import extract_pages
@@ -21,9 +23,15 @@ from document_search.types import DocumentFormat
 
 from .doc_reader_interface import IDocumentReader
 from .exceptions import ExtractImageError, ExtractTablesError, ExtractTextBlockError
+from .text_corrector import TextCorrector
 
 
 class PDFDocumentReader(IDocumentReader):
+    def __init__(self, use_text_correction: bool = True):
+        self.reader = easyocr.Reader(["ru"])
+        self.use_text_correction = use_text_correction
+        if self.use_text_correction:
+            self.corrector = TextCorrector("ai-forever/sage-fredt5-distilled-95m")
 
     def convert_pdf_to_images(self, pdf_path: str) -> list[Image.Image]:
         with fitz.open(pdf_path) as pdf_document:
@@ -41,7 +49,7 @@ class PDFDocumentReader(IDocumentReader):
         file_format: DocumentFormat,
         page: int,
     ) -> Image.Image:
-        tmp_filename = str(uuid.uuid4().hex) + '.pdf'
+        tmp_filename = str(uuid.uuid4().hex) + ".pdf"
         with open(tmp_filename, "wb") as tmpfile:
             file.seek(0)  # type: ignore
             tmpfile.write(file.read())  # type: ignore
@@ -61,7 +69,7 @@ class PDFDocumentReader(IDocumentReader):
         pdf_writer = PyPDF2.PdfWriter()
         pdf_writer.add_page(page_object)
 
-        tmp_pdf_path = str(uuid.uuid4().hex) + '.pdf'
+        tmp_pdf_path = str(uuid.uuid4().hex) + ".pdf"
         try:
             with open(tmp_pdf_path, "wb") as file:
                 pdf_writer.write(file)
@@ -82,10 +90,7 @@ class PDFDocumentReader(IDocumentReader):
         ]
 
     def _extract_tables(
-        self,
-        table_parser: pdfplumber.PDF,
-        page_num: int,
-        document_name: str
+        self, table_parser: pdfplumber.PDF, page_num: int, document_name: str
     ) -> list[DocEntity]:
         try:
             table_page = table_parser.pages[page_num]
@@ -105,13 +110,12 @@ class PDFDocumentReader(IDocumentReader):
         self,
         element: LTTextContainer,  # type: ignore
         page_num: int,
-        document_name: str
+        document_name: str,
     ) -> TextDocEntity:
         try:
             text = element.get_text().strip().replace("\n", "")
             return TextDocEntity(
-                position=EntityPosition(document_name, page_num),
-                text=text
+                position=EntityPosition(document_name, page_num), text=text
             )
         except Exception as exc:
             raise ExtractTextBlockError from exc
@@ -121,32 +125,50 @@ class PDFDocumentReader(IDocumentReader):
         pdf_object: PyPDF2.PdfReader,
         element: LTFigure,
         page_num: int,
-        document_name: str
-    ) -> ImageDocEntity:
+        document_name: str,
+    ) -> list[TextDocEntity | ImageDocEntity]:
         try:
             page_object = pdf_object.pages[page_num]
             image = self._crop_image_from_pdf(element, page_object)
-            return ImageDocEntity(
-                position=EntityPosition(document_name=document_name, page_number=page_num),
-                image=image
+
+            ocr_result = self.reader.readtext(
+                np.asarray(image), detail=0, paragraph=True, batch_size=8
             )
+            if self.use_text_correction:
+                ocr_result = self.corrector(ocr_result)
+
+            text_entities = [
+                TextDocEntity(
+                    position=EntityPosition(document_name, page_num), text=text
+                )
+                for text in ocr_result
+            ]
+            image_entity = ImageDocEntity(
+                position=EntityPosition(
+                    document_name=document_name, page_number=page_num
+                ),
+                image=image,
+            )
+            return [image_entity] + text_entities
         except Exception as exc:
             raise ExtractImageError from exc
 
     def read(
-        self,
-        file: io.IOBase | str,
-        filename: str | None = None
+        self, file: io.IOBase | str, filename: str | None = None
     ) -> tuple[ProcessedDocument, list[Exception]]:
         if isinstance(file, str):
             pdf_file = open(file, "rb")
             filename = filename if filename else Path(file).stem
         else:
-            assert filename is not None, "param filename should be specified if file is a file object"
+            assert (
+                filename is not None
+            ), "param filename should be specified if file is a file object"
             pdf_file = file  # type: ignore
         return self.process_pdf_bytes(pdf_file, filename)
 
-    def process_pdf_bytes(self, pdf_file: io.IOBase, document_name: str) -> tuple[ProcessedDocument, list[Exception]]:
+    def process_pdf_bytes(
+        self, pdf_file: io.IOBase, document_name: str
+    ) -> tuple[ProcessedDocument, list[Exception]]:
         errors = []
         doc_entities: list[DocEntity] = []
         pdf_object = PyPDF2.PdfReader(pdf_file)  # type: ignore
@@ -154,22 +176,28 @@ class PDFDocumentReader(IDocumentReader):
 
         for page_num, page in enumerate(extract_pages(pdf_file)):
             try:
-                page_entities = self._extract_tables(table_parser, page_num, document_name)
+                page_entities = self._extract_tables(
+                    table_parser, page_num, document_name
+                )
             except Exception as err:
                 errors.append(err)
 
             for element in page._objs:
                 if isinstance(element, LTTextContainer):
                     try:
-                        text_entity = self._extract_text_block(element, page_num, document_name)
+                        text_entity = self._extract_text_block(
+                            element, page_num, document_name
+                        )
                         if text_entity.text:
                             page_entities.append(text_entity)
                     except Exception as err:
                         errors.append(err)
                 elif isinstance(element, LTFigure):
                     try:
-                        page_entities.append(
-                            self._extract_image(pdf_object, element, page_num, document_name)
+                        page_entities.extend(
+                            self._extract_image(
+                                pdf_object, element, page_num, document_name
+                            )
                         )
                     except Exception as err:
                         errors.append(err)
@@ -180,5 +208,5 @@ class PDFDocumentReader(IDocumentReader):
             name=document_name,
             num_pages=len(pdf_object.pages),
             original_format="pdf",
-            entities=doc_entities
+            entities=doc_entities,
         ), errors
