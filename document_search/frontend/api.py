@@ -1,9 +1,10 @@
 import io
+import os
 from typing import Any
 
 import requests
 
-API_URL = "http://195.242.24.229:8005"
+API_URL = os.environ.get("API_URL")
 
 
 def add_document(file: io.BytesIO) -> Any:

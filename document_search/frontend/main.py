@@ -68,6 +68,12 @@ def st_process_query(query: str, document_ids: list[str]) -> None:
 def main() -> None:
     st.title("Приложение для ответов на вопросы по документам")
 
+    storage_info = get_storage_info()
+    with st.sidebar:
+        with st.expander("Посмотреть документы в базе"):
+            for item in storage_info["items"]:
+                st.subheader(item["document_filename"])
+
     with st.form("upload_files_key"):
         uploaded_files = st.file_uploader(
             "Загрузите документы:", type=["pdf", "docx"], accept_multiple_files=True
@@ -78,7 +84,10 @@ def main() -> None:
         st_process_uploaded_files(uploaded_files)
 
     doc_filename2id = get_doc_filename2id()
-    selected_documents = st.multiselect("Выберите документы:", doc_filename2id.keys())
+    selected_documents = st.multiselect(
+        "Выберите документы, по которым будет осуществлён поиск:",
+        doc_filename2id.keys(),
+    )
 
     with st.form("search_query_key"):
         query = st.text_area("Введите запрос:", height=100)
