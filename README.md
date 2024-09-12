@@ -35,7 +35,8 @@ pip install ".[dev]"
 
 
 ## Запуск frontend-части
-Для запуска выполните команду:
+
+Для запуска необходимо определить переменную окружения `BACKEND_API_URL` и выполнить команду:
 ```bash
-streamlit run frontend/main.py [-- script args]
+streamlit run frontend/main.py --server.port=<your-server-port> [-- script args]
 ```
