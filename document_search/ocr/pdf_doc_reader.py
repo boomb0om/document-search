@@ -27,7 +27,7 @@ from .text_corrector import TextCorrector
 
 
 class PDFDocumentReader(IDocumentReader):
-    def __init__(self, use_text_correction: bool = True):
+    def __init__(self, use_text_correction: bool = False):
         self.reader = easyocr.Reader(["ru"])
         self.use_text_correction = use_text_correction
         if self.use_text_correction:
